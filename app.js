@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 var mongoose = require('mongoose');
 
 var mongoDB = 'mongodb://127.0.0.1/abc';
@@ -7,24 +8,69 @@ var db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
-var Schema = mongoose.Schema;
-
-var SomeModelSchema = new Schema({
-    name: String,
-    a_date: Date
+var kittySchema = mongoose.Schema({
+  type: String,
+  goods: Array,
+  topping: Array
 });
 
-var SomeModel = mongoose.model('SomeModel', SomeModelSchema );
+const menu2 = {
+  type: 'icecream',
+  goods: [{
+    name: 'Organic Soft Serve Ice Cream',
+    style: ['Vanilla Bean', 'Chocolate', 'Vanilla Chocolate Twirl']
+  }, {
+    name: 'Mitchell’s Ice Cream',
+    style: ['Strawberry', 'Oreo Cookie', 'Thin Mint']
+  }, {
+    name: 'Pop Nation Popsicles',
+    style: []
+  }, {
+    name: 'Frozen Banana Dip In Dark Chocolate',
+    style: []
+  }, {
+    name: 'Ice Cream Float',
+    style: ['Root Beer Float', 'Cream Soda Float']
+  }, {
+    name: 'Sundae',
+    style: ['Regular Sundae', 'Toffee Crunch Sundae', 'HoneyComb Dream Sundae']
+  }],
+  topping: [{
+    type: 'Regular Topping',
+    goods: ['Toasted Almond', 'Rainbow Sprinkle', 'Chocolate Sprinkle', 'Chocolate Chip']
+  }, {
+    type: 'Housemake Topping',
+    goods: ['Toffee Pieces', 'Honeycomb Candy', 'Chocolate Sauce', 'Butterscotch']
+  }]
+}
 
-var awesome_instance = new SomeModel({ name: 'awesome' });
-awesome_instance.save(function (err) {
-  if (err) return console.log(err);
-  // saved!
+// // NOTE: methods must be added to the schema before compiling it with mongoose.model()
+// kittySchema.methods.speak = function () {
+//   var greeting = this.name
+//     ? "Meow name is " + this.name
+//     : "I don't have a name";
+//   console.log(greeting);
+// }
+
+var Kitten = mongoose.model('Kitten', kittySchema);
+// var menu = new Kitten(menu2);
+// menu.save(function (err, menu2) {
+//   if (err) return console.error(err);
+//   // console.log(menu2)
+// });
+
+Kitten.find({ type: /^icecream/ }, (err, res) => {
+  if (err) return console.err(err)
+  console.log(res)
 });
+// var silence = new Kitten({ name: 'Silence' });
+// console.log(silence.name);
+// silence.speak()
 
-console.log('??????', awesome_instance.name); //should log 'also_awesome'
+// var fluffy = new Kitten({ name: 'fluffy' });
+// fluffy.speak(); // "Meow name is fluffy"
 
-awesome_instance.name="New cool name";
-awesome_instance.update(function (err) {
-  if (err) return console.log(err); // saved!
-});
+// fluffy.save(function (err, fluffy) {
+//   if (err) return console.error(err);
+//   fluffy.speak();
+// });
