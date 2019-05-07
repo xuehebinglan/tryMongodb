@@ -1,36 +1,30 @@
-const MongoClient = require('mongodb').MongoClient;
-const assert = require('assert');
+var mongoose = require('mongoose');
 
-// Connection URL
-const url = 'mongodb://localhost:27017';
+var mongoDB = 'mongodb://127.0.0.1/abc';
+mongoose.connect(mongoDB);
 
-// Database Name
-const dbName = 'myproject2';
+var db = mongoose.connection;
 
-const insertDocuments = function(db, callback) {
-  // Get the documents collection
-  const collection = db.collection('documents');
-  // Insert some documents
-  collection.insertMany([
-    {c : {a:1}},{c : {a:1}},{c : {a:1}}
-  ], function(err, result) {
-    assert.equal(err, null);
-    assert.equal(3, result.result.n);
-    assert.equal(3, result.ops.length);
-    console.log("Inserted 3 documents into the collection");
-    callback(result);
-  });
-}
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
+var Schema = mongoose.Schema;
 
-// Use connect method to connect to the server
-MongoClient.connect(url, function(err, client) {
-  assert.equal(null, err);
-  console.log("Connected successfully to server");
+var SomeModelSchema = new Schema({
+    name: String,
+    a_date: Date
+});
 
-  const db = client.db(dbName);
+var SomeModel = mongoose.model('SomeModel', SomeModelSchema );
 
-  insertDocuments(db, function() {
-    client.close();
-  });
+var awesome_instance = new SomeModel({ name: 'awesome' });
+awesome_instance.save(function (err) {
+  if (err) return console.log(err);
+  // saved!
+});
+
+console.log('??????', awesome_instance.name); //should log 'also_awesome'
+
+awesome_instance.name="New cool name";
+awesome_instance.update(function (err) {
+  if (err) return console.log(err); // saved!
 });
