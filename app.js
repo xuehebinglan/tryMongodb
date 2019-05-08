@@ -1,20 +1,36 @@
 /* eslint-disable no-console */
 var mongoose = require('mongoose');
-
-var mongoDB = 'mongodb://127.0.0.1/abc';
+var mongoDB = 'mongodb://127.0.0.1/20190508';
 mongoose.connect(mongoDB);
 
 var db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+db.once('open', function() {
+  // we're connected!
+  console.log('connect the database')
+});
+// var menuSchema = new mongoose.Schema({
+//   type: String,
+//   goods: Array,
+//   toppings: Array
+// });
 
-var kittySchema = mongoose.Schema({
+var styleSchema = new mongoose.Schema({
+  name: String
+});
+var goodsSchema = new mongoose.Schema({
+  name: String,
+  style: [String]
+});
+var menuSchema = new mongoose.Schema({
   type: String,
-  goods: Array,
-  topping: Array
+  goods: [goodsSchema],
+  toppings: [goodsSchema]
 });
 
-const menu2 = {
+
+const menuData = {
   type: 'icecream',
   goods: [{
     name: 'Organic Soft Serve Ice Cream',
@@ -36,41 +52,31 @@ const menu2 = {
     style: ['Regular Sundae', 'Toffee Crunch Sundae', 'HoneyComb Dream Sundae']
   }],
   topping: [{
-    type: 'Regular Topping',
-    goods: ['Toasted Almond', 'Rainbow Sprinkle', 'Chocolate Sprinkle', 'Chocolate Chip']
+    name: 'Regular Topping',
+    style: ['Toasted Almond', 'Rainbow Sprinkle', 'Chocolate Sprinkle', 'Chocolate Chip']
   }, {
-    type: 'Housemake Topping',
-    goods: ['Toffee Pieces', 'Honeycomb Candy', 'Chocolate Sauce', 'Butterscotch']
+    name: 'Housemake Topping',
+    style: ['Toffee Pieces', 'Honeycomb Candy', 'Chocolate Sauce', 'Butterscotch']
   }]
 }
 
-// // NOTE: methods must be added to the schema before compiling it with mongoose.model()
-// kittySchema.methods.speak = function () {
-//   var greeting = this.name
-//     ? "Meow name is " + this.name
-//     : "I don't have a name";
-//   console.log(greeting);
-// }
-
-var Kitten = mongoose.model('Kitten', kittySchema);
-// var menu = new Kitten(menu2);
-// menu.save(function (err, menu2) {
-//   if (err) return console.error(err);
-//   // console.log(menu2)
-// });
-
-Kitten.find({ type: /^icecream/ }, (err, res) => {
-  if (err) return console.err(err)
-  console.log(res)
+var menuTable = mongoose.model('menu', menuSchema);
+var menu = new menuTable(menuData);
+menu.save(function (err, menu2) {
+  if (err) return console.error(err);
+  // console.log(menu2)
 });
-// var silence = new Kitten({ name: 'Silence' });
-// console.log(silence.name);
-// silence.speak()
 
-// var fluffy = new Kitten({ name: 'fluffy' });
-// fluffy.speak(); // "Meow name is fluffy"
+menuTable.find({
+  type: /^icecream/,
+  goods: {
+    $elemMatch: {
+      name: 'Organic Soft Serve Ice Cream'
+    }
+  }
+ })
+.then((res) => {
+  console.log('1111111111', res[0])
+  console.log('22222222222', res[1])
+})
 
-// fluffy.save(function (err, fluffy) {
-//   if (err) return console.error(err);
-//   fluffy.speak();
-// });
